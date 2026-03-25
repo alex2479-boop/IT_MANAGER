@@ -11,11 +11,10 @@ import Link from 'next/link'
 
 export default async function NewRequestPage() {
   const supabase = await createClient()
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('id, name')
-    .eq('type', 'request')
-    .order('name')
+  const [{ data: categories }, { data: departments }] = await Promise.all([
+    supabase.from('categories').select('id, name').eq('type', 'request').order('name'),
+    supabase.from('departments').select('id, name').eq('active', true).order('name'),
+  ])
 
   return (
     <div className="max-w-2xl space-y-4">
@@ -47,10 +46,24 @@ export default async function NewRequestPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
+                <Label htmlFor="department_id">Departamento</Label>
+                <Select name="department_id">
+                  <SelectTrigger id="department_id">
+                    <SelectValue placeholder="Selecciona departamento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments?.map(dep => (
+                      <SelectItem key={dep.id} value={dep.id}>{dep.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
                 <Label htmlFor="category_id">Categoría</Label>
                 <Select name="category_id">
                   <SelectTrigger id="category_id">
-                    <SelectValue placeholder="Selecciona una categoría" />
+                    <SelectValue placeholder="Selecciona categoría" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories?.map(cat => (
@@ -59,21 +72,21 @@ export default async function NewRequestPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="priority">Prioridad *</Label>
-                <Select name="priority" defaultValue="low" required>
-                  <SelectTrigger id="priority">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Baja</SelectItem>
-                    <SelectItem value="medium">Media</SelectItem>
-                    <SelectItem value="high">Alta</SelectItem>
-                    <SelectItem value="critical">Crítica</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="priority">Prioridad *</Label>
+              <Select name="priority" defaultValue="low" required>
+                <SelectTrigger id="priority">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Baja</SelectItem>
+                  <SelectItem value="medium">Media</SelectItem>
+                  <SelectItem value="high">Alta</SelectItem>
+                  <SelectItem value="critical">Crítica</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1.5">

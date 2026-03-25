@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { PRIORITY_LABELS, REQUEST_STATUS_LABELS } from '@/lib/constants'
-import { ArrowLeft, User, Calendar, Tag, ClipboardList } from 'lucide-react'
+import { ArrowLeft, User, Calendar, Tag, ClipboardList, Building2 } from 'lucide-react'
 import Link from 'next/link'
 
 const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
@@ -35,6 +35,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
     .select(`
       *,
       category:categories(name),
+      department:departments(name),
       requester:profiles!service_requests_requested_by_fkey(full_name, email),
       assignee:profiles!service_requests_assigned_to_fkey(full_name)
     `)
@@ -107,6 +108,16 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
                   <p className="text-foreground font-medium">{request.assignee?.full_name ?? 'Sin asignar'}</p>
                 </div>
               </div>
+
+              {request.department && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Building2 className="h-3.5 w-3.5 shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Departamento</p>
+                    <p className="text-foreground">{request.department.name}</p>
+                  </div>
+                </div>
+              )}
 
               {request.category && (
                 <div className="flex items-center gap-2 text-muted-foreground">

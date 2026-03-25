@@ -13,10 +13,11 @@ export async function createServiceRequest(formData: FormData) {
   const description = formData.get('description') as string
   const category_id = formData.get('category_id') as string || null
   const priority = formData.get('priority') as string
+  const department_id = formData.get('department_id') as string || null
 
   const { data, error } = await supabase
     .from('service_requests')
-    .insert({ title, description, category_id, priority, requested_by: user.id })
+    .insert({ title, description, category_id, priority, department_id, requested_by: user.id })
     .select('id')
     .single()
 
