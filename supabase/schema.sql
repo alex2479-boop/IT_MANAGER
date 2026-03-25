@@ -3,6 +3,35 @@
 -- Basado en ITIL: Incidentes, Cambios, Problemas, Solicitudes, CMDB
 -- ============================================================
 
+-- ============================================================
+-- LIMPIEZA (permite re-ejecutar el schema desde cero)
+-- ============================================================
+drop table if exists notifications cascade;
+drop table if exists service_requests cascade;
+drop table if exists problems cascade;
+drop table if exists changes cascade;
+drop table if exists incident_comments cascade;
+drop table if exists incidents cascade;
+drop table if exists assets cascade;
+drop table if exists categories cascade;
+drop table if exists profiles cascade;
+
+drop type if exists asset_status cascade;
+drop type if exists request_status cascade;
+drop type if exists problem_status cascade;
+drop type if exists change_status cascade;
+drop type if exists incident_status cascade;
+drop type if exists priority_level cascade;
+drop type if exists user_role cascade;
+
+drop function if exists generate_ticket_number cascade;
+drop function if exists set_incident_ticket cascade;
+drop function if exists set_change_ticket cascade;
+drop function if exists set_problem_ticket cascade;
+drop function if exists set_request_ticket cascade;
+drop function if exists update_updated_at cascade;
+drop function if exists handle_new_user cascade;
+
 -- Extensiones
 create extension if not exists "uuid-ossp";
 
@@ -92,7 +121,7 @@ create policy "Admins and managers can manage assets" on assets for all using (
 -- ============================================================
 create table incidents (
   id uuid primary key default uuid_generate_v4(),
-  ticket_number text unique not null generated always as ('INC-' || to_char(created_at, 'YYYYMMDD') || '-' || substring(id::text, 1, 6)) stored,
+  ticket_number text unique,
   title text not null,
   description text not null,
   category_id uuid references categories(id),
@@ -140,7 +169,7 @@ create policy "Authenticated can add comments" on incident_comments for insert w
 -- ============================================================
 create table changes (
   id uuid primary key default uuid_generate_v4(),
-  ticket_number text unique not null generated always as ('CHG-' || to_char(created_at, 'YYYYMMDD') || '-' || substring(id::text, 1, 6)) stored,
+  ticket_number text unique,
   title text not null,
   description text not null,
   justification text,
@@ -173,7 +202,7 @@ create policy "Managers and above can approve/update changes" on changes for upd
 -- ============================================================
 create table problems (
   id uuid primary key default uuid_generate_v4(),
-  ticket_number text unique not null generated always as ('PRB-' || to_char(created_at, 'YYYYMMDD') || '-' || substring(id::text, 1, 6)) stored,
+  ticket_number text unique,
   title text not null,
   description text not null,
   root_cause text,
@@ -202,7 +231,7 @@ create policy "Technicians and above can manage problems" on problems for all us
 -- ============================================================
 create table service_requests (
   id uuid primary key default uuid_generate_v4(),
-  ticket_number text unique not null generated always as ('REQ-' || to_char(created_at, 'YYYYMMDD') || '-' || substring(id::text, 1, 6)) stored,
+  ticket_number text unique,
   title text not null,
   description text not null,
   category_id uuid references categories(id),
@@ -242,6 +271,57 @@ create table notifications (
 alter table notifications enable row level security;
 create policy "Users can view their own notifications" on notifications for select using (auth.uid() = user_id);
 create policy "Users can mark their notifications as read" on notifications for update using (auth.uid() = user_id);
+
+-- ============================================================
+-- FUNCIONES: generar ticket numbers automáticamente
+-- ============================================================
+create or replace function generate_ticket_number(prefix text, id uuid)
+returns text as $$
+begin
+  return prefix || '-' || to_char(now(), 'YYYYMMDD') || '-' || upper(substring(id::text, 1, 6));
+end;
+$$ language plpgsql;
+
+create or replace function set_incident_ticket() returns trigger as $$
+begin
+  if new.ticket_number is null then
+    new.ticket_number := generate_ticket_number('INC', new.id);
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+create or replace function set_change_ticket() returns trigger as $$
+begin
+  if new.ticket_number is null then
+    new.ticket_number := generate_ticket_number('CHG', new.id);
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+create or replace function set_problem_ticket() returns trigger as $$
+begin
+  if new.ticket_number is null then
+    new.ticket_number := generate_ticket_number('PRB', new.id);
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+create or replace function set_request_ticket() returns trigger as $$
+begin
+  if new.ticket_number is null then
+    new.ticket_number := generate_ticket_number('REQ', new.id);
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger set_incident_ticket_number before insert on incidents for each row execute function set_incident_ticket();
+create trigger set_change_ticket_number before insert on changes for each row execute function set_change_ticket();
+create trigger set_problem_ticket_number before insert on problems for each row execute function set_problem_ticket();
+create trigger set_request_ticket_number before insert on service_requests for each row execute function set_request_ticket();
 
 -- ============================================================
 -- FUNCIÓN: actualizar updated_at automáticamente
