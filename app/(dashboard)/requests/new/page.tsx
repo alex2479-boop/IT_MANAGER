@@ -20,11 +20,9 @@ export default async function NewRequestPage() {
   return (
     <div className="max-w-2xl space-y-4">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/requests">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Volver
-          </Link>
+        <Button variant="ghost" size="sm" render={<Link href="/requests" />}>
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Volver
         </Button>
       </div>
 
@@ -91,9 +89,7 @@ export default async function NewRequestPage() {
 
             <div className="flex gap-3 pt-2">
               <Button type="submit" className="flex-1">Enviar Solicitud</Button>
-              <Button type="button" variant="outline" asChild>
-                <Link href="/requests">Cancelar</Link>
-              </Button>
+              <Button variant="outline" render={<Link href="/requests" />}>Cancelar</Button>
             </div>
           </form>
         </CardContent>

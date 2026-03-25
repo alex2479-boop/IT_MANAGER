@@ -63,13 +63,11 @@ export function AppSidebar({ user }: AppSidebarProps) {
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
-                  asChild
+                  render={<Link href={item.href} />}
                   isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
                 >
-                  <Link href={item.href}>
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -80,19 +78,15 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarFooter className="border-t border-sidebar-border p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/settings">
-                <Settings className="h-4 w-4" />
-                <span>Configuración</span>
-              </Link>
+            <SidebarMenuButton render={<Link href="/settings" />}>
+              <Settings className="h-4 w-4" />
+              <span>Configuración</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/auth/logout">
-                <LogOut className="h-4 w-4" />
-                <span>Cerrar sesión</span>
-              </Link>
+            <SidebarMenuButton render={<Link href="/auth/logout" />}>
+              <LogOut className="h-4 w-4" />
+              <span>Cerrar sesión</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

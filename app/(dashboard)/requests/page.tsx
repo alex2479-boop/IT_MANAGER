@@ -111,11 +111,9 @@ export default async function RequestsPage() {
           <h1 className="text-2xl font-semibold">Solicitudes de Servicio</h1>
           <p className="text-sm text-muted-foreground">{requests?.length ?? 0} solicitudes en total</p>
         </div>
-        <Button asChild>
-          <Link href="/requests/new">
-            <Plus className="h-4 w-4 mr-1" />
-            Nueva Solicitud
-          </Link>
+        <Button render={<Link href="/requests/new" />}>
+          <Plus className="h-4 w-4 mr-1" />
+          Nueva Solicitud
         </Button>
       </div>
 

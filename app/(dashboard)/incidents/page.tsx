@@ -26,11 +26,9 @@ export default async function IncidentsPage() {
           <h1 className="text-2xl font-semibold">Incidentes</h1>
           <p className="text-sm text-muted-foreground">{incidents?.length ?? 0} registros encontrados</p>
         </div>
-        <Button asChild>
-          <Link href="/incidents/new">
-            <Plus className="h-4 w-4 mr-1" />
-            Nuevo Incidente
-          </Link>
+        <Button render={<Link href="/incidents/new" />}>
+          <Plus className="h-4 w-4 mr-1" />
+          Nuevo Incidente
         </Button>
       </div>
 

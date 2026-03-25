@@ -50,11 +50,9 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="max-w-3xl space-y-4">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/requests">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Solicitudes
-          </Link>
+        <Button variant="ghost" size="sm" render={<Link href="/requests" />}>
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Solicitudes
         </Button>
       </div>
 
